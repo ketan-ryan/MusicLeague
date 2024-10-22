@@ -1,5 +1,5 @@
-const express = require('express')
-const request = require('request');
+const path = require('path');
+const express = require('express');
 const dotenv = require('dotenv');
 const passport = require('passport');
 const session = require('express-session');
@@ -8,9 +8,9 @@ const SpotifyStrategy = require('passport-spotify').Strategy;
 const dbService = require('./services/dbService');
 const tgService = require('./services/telegramService');
 
-const port = 5000
+const port = 5000;
 
-global.access_token = ''
+global.access_token = '';
 dotenv.config();
 
 const app = express();
@@ -79,7 +79,7 @@ app.get('/api/count', async (req, res) => {
 
 var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
 var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-var spotify_redirect_uri = process.env.SPOTIFY_CALLBACK_URL;
+var spotify_redirect_uri = 'http://192.168.86.37:3000/auth/callback';
 
 // Serialize user into the session
 passport.serializeUser((user, done) => {
@@ -190,7 +190,7 @@ app.get('/auth/callback',
 app.get('/auth/token', (req, res) => {
     if (req.isAuthenticated()) {
       return res.json({ access_token: req.user.accessToken });
-    }
+    } 
     return res.status(401).json({ error: 'User not authenticated' });
 });
 
@@ -243,7 +243,13 @@ app.get('/telegram/poll', async (req, res) => {
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}))
+app.use(express.static(path.join(__dirname, '../build')));
 
-app.listen(port, () => {
+// For any other routes, serve the React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
+
+app.listen(port, '0.0.0.0', () => {
   console.log(`Listening at http://localhost:${port}`)
 });

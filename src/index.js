@@ -5,6 +5,7 @@ import App from './App';
 import './index.css';
 import WebPlayback from './WebPlayback';
 import Completed from './Completed';
+import Login from './Login';
 
 ReactDOM.render(
     <Router>
@@ -12,6 +13,7 @@ ReactDOM.render(
         <Route path='/' element={<App/>} />
         <Route path='/webplayback' element={<WebPlayback/>} />
         <Route path='/completed' element={<Completed/>} />
+        <Route path='/login' element={<Login/>} />
       </Routes>
     </Router>,
     document.getElementById('root')
