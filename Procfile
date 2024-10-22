@@ -1,1 +1,1 @@
-web: bin/start-nginx-static
+web: bin/start-nginx npm-run-all -p server start
