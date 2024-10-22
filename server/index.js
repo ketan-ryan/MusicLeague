@@ -254,7 +254,3 @@ app.get('*', (req, res) => {
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Listening at http://localhost:${port}`)
 });
-
-// Use a socket if required
-const socketPath = '/tmp/nginx.socket';
-server.listen(socketPath);
