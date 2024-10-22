@@ -9,6 +9,7 @@ const dbService = require('./services/dbService');
 const tgService = require('./services/telegramService');
 
 const port = 5000;
+const baseUrl = process.env.NODE_ENV === 'production' ? 'https://music-league-dd4b5eb904d4.herokuapp.com' : `http://localhost:${port}`
 
 global.access_token = '';
 dotenv.config();
@@ -16,7 +17,7 @@ dotenv.config();
 const app = express();
 
 /** ===================Database Connection=================== */
-app.get('/api/user', async (req, res) => {
+app.get(`${baseUrl}/api/user`, async (req, res) => {
     const user_id = req.query.user_id;
     try {
         const user = await dbService.getUser(user_id);
@@ -35,7 +36,7 @@ app.get('/api/user', async (req, res) => {
     }
 });
 
-app.get('/api/createUser', async (req, res) => {
+app.get(`${baseUrl}/api/createUser`, async (req, res) => {
     const user_id = req.query.user_id;
     const email = req.query.email;
     try {
@@ -48,7 +49,7 @@ app.get('/api/createUser', async (req, res) => {
     }
 });
 
-app.get('/api/updateUser', async (req, res) => {
+app.get(`${baseUrl}/api/updateUser`, async (req, res) => {
     const userId = req.query.user_id;
     const songUri = req.query.song_uri;
     const songTitle = req.query.song_title;
@@ -64,7 +65,7 @@ app.get('/api/updateUser', async (req, res) => {
     }
 });
 
-app.get('/api/count', async (req, res) => {
+app.get(`${baseUrl}/api/count`, async (req, res) => {
     try {
         const count = await dbService.getCount();
         res.json(count);
@@ -125,7 +126,7 @@ var generateRandomString = function (length) {
   return text;
 };
 
-app.get('/auth/login', (req, res) => {
+app.get(`${baseUrl}/auth/login`, (req, res) => {
     const state = generateRandomString(16); // Generate a random state
     req.session.state = state; // Store it in the session
     passport.authenticate('spotify', { state: state })(req, res);
@@ -147,14 +148,14 @@ app.get('/auth/login', (req, res) => {
 // });
 
 app.get(
-    '/auth/spotify',
+    `${baseUrl}/auth/spotify`,
     passport.authenticate('spotify', {
       scope: ['streaming', 'user-read-email', 'user-read-private', 'user-library-read'],
       showDialog: true,
     }),
 );
 
-app.get('/auth/callback',
+app.get(`${baseUrl}/auth/callback`,
     passport.authenticate('spotify', { failureRedirect: '/login' }),
     (req, res) => {
         // Successful authentication, redirect to your desired page
@@ -187,7 +188,7 @@ app.get('/auth/callback',
 //   });
 // });
 
-app.get('/auth/token', (req, res) => {
+app.get(`${baseUrl}/auth/token`, (req, res) => {
     if (req.isAuthenticated()) {
       return res.json({ access_token: req.user.accessToken });
     } 
@@ -205,7 +206,7 @@ app.get('/logout', (req, res) => {
 // });
 
 /** ===================Telegram Connection=================== */
-app.get('/telegram/poll', async (req, res) => {
+app.get(`${baseUrl}/telegram/poll`, async (req, res) => {
     try {
         const rows = await dbService.getTgChatId();
 
