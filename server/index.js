@@ -251,6 +251,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
-app.listen(port, '0.0.0.0', () => {
+app.listen(process.env.PORT || port, () => {
   console.log(`Listening at http://localhost:${port}`)
 });
