@@ -7,10 +7,11 @@ var connection;
 async function initDb() {
     try {
         connection = await mysql.createConnection({
-            host: process.env.JAWSDB_URL,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASS,
-            database: process.env.DB_NAME
+            host: process.env.JAWS_HOST,
+            user: process.env.JAWS_USER,
+            password: process.env.JAWS_PASS,
+            database: process.env.JAWS_DB,
+            port: process.env.JAWS_PORT
         });
 
         console.log('Successfully connected to db');
