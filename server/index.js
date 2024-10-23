@@ -16,6 +16,8 @@ dotenv.config();
 
 const app = express();
 
+const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Fallback for safety
+
 /** ===================Database Connection=================== */
 app.get('/api/user', async (req, res) => {
     const user_id = req.query.user_id;
