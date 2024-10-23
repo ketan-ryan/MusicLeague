@@ -1,1 +1,1 @@
-web: bin/start-nginx npm-run-all -p server start
+web: npm run dev
