@@ -37,6 +37,8 @@ app.use(
     })
 );
 
+app.set('trust proxy', 1); // trust first proxy for heroku
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -222,6 +224,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
-const server = app.listen(process.env.PORT || port, () => {
+app.listen(process.env.PORT || port, () => {
   console.log(`Listening at http://localhost:${port}`)
 });
