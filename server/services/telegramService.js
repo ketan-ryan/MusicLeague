@@ -1,9 +1,10 @@
 const { Telegraf } = require('telegraf');
 const dbService = require('./dbService');
 
-global.bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-
-console.log('Created bot');
+if (!global.bot) {
+    global.bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+    console.log('Created bot');
+}
 
 var user = '';
 var chatId = '';

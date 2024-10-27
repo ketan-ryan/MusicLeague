@@ -9,14 +9,34 @@ const dbService = require('./services/dbService');
 const tgService = require('./services/telegramService');
 
 const port = 5000;
-const baseUrl = process.env.NODE_ENV === 'production' ? 'https://music-league-dd4b5eb904d4.herokuapp.com' : 'http://localhost:5000'
 
 global.access_token = '';
 dotenv.config();
 
 const app = express();
+const cors = require('cors')
+const frontend_url = process.env.REACT_APP_FRONTEND_URL;
 
-const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Fallback for safety
+app.use(cors({ 
+    origin: frontend_url,
+    credentials: true
+}));
+
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax'
+        }
+    })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 /** ===================Database Connection=================== */
 app.get('/api/user', async (req, res) => {
@@ -80,9 +100,10 @@ app.get('/api/count', async (req, res) => {
 
 /** ===================Spotify Connection=================== */
 
-var spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
-var spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-var spotify_redirect_uri = 'http://192.168.86.37:3000/auth/callback';
+const spotify_client_id = process.env.SPOTIFY_CLIENT_ID;
+const spotify_client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+const backend_url = process.env.REACT_APP_API_URL;
+const spotify_redirect_uri = `${backend_url}/auth/callback`;
 
 // Serialize user into the session
 passport.serializeUser((user, done) => {
@@ -108,16 +129,6 @@ passport.use(new SpotifyStrategy({
   }
 ));
 
-app.use(
-    session({
-        secret: process.env.SESSION_SECRET,
-        resave: true,
-        saveUninitialized: true
-    }));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
 var generateRandomString = function (length) {
   var text = '';
   var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -134,21 +145,6 @@ app.get('/auth/login', (req, res) => {
     passport.authenticate('spotify', { state: state })(req, res);
 });
 
-// app.get('/auth/login', (req, res) => {
-//   var scope = "streaming user-read-email user-read-private user-library-read"
-//   var state = generateRandomString(16);
-
-//   var auth_query_parameters = new URLSearchParams({
-//     response_type: "code",
-//     client_id: spotify_client_id,
-//     scope: scope,
-//     redirect_uri: spotify_redirect_uri,
-//     state: state
-//   });
-
-//   res.redirect('https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString());
-// });
-
 app.get(
     '/auth/spotify',
     passport.authenticate('spotify', {
@@ -158,37 +154,12 @@ app.get(
 );
 
 app.get('/auth/callback',
-    passport.authenticate('spotify', { failureRedirect: '/login' }),
+    passport.authenticate('spotify', { failureRedirect: `${frontend_url}/login` }),
     (req, res) => {
         // Successful authentication, redirect to your desired page
-        res.redirect('/');  // Or wherever you want to redirect after login
+        res.redirect(`${frontend_url}`)
     }
 );
-
-// app.get('/auth/callback', (req, res) => {
-//   var code = req.query.code;
-
-//   var authOptions = {
-//     url: 'https://accounts.spotify.com/api/token',
-//     form: {
-//       code: code,
-//       redirect_uri: spotify_redirect_uri,
-//       grant_type: 'authorization_code'
-//     },
-//     headers: {
-//       'Authorization': 'Basic ' + (Buffer.from(spotify_client_id + ':' + spotify_client_secret).toString('base64')),
-//       'Content-Type' : 'application/x-www-form-urlencoded'
-//     },
-//     json: true
-//   };
-
-//   request.post(authOptions, function(error, response, body) {
-//     if (!error && response.statusCode === 200) {
-//       access_token = body.access_token;
-//       res.redirect('/');
-//     }
-//   });
-// });
 
 app.get('/auth/token', (req, res) => {
     if (req.isAuthenticated()) {
@@ -202,10 +173,6 @@ app.get('/logout', (req, res) => {
     req.logout();
     res.redirect('/login');
 });
-
-// app.get('/auth/token', (req, res) => {
-//   res.json({ access_token: access_token})
-// });
 
 /** ===================Telegram Connection=================== */
 app.get('/telegram/poll', async (req, res) => {
@@ -253,6 +220,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
-const server = app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`)
 });
