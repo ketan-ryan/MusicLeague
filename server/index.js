@@ -220,6 +220,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
-const server = app.listen(port, () => {
+const server = app.listen(process.env.PORT || port, () => {
   console.log(`Listening at http://localhost:${port}`)
 });
