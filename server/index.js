@@ -19,8 +19,7 @@ const frontend_url = process.env.REACT_APP_FRONTEND_URL;
 
 app.use(cors({ 
     origin: frontend_url,
-    credentials: true,
-    exposedHeaders: ['set-cookie']
+    credentials: true
 }));
 
 const inProd = process.env.NODE_ENV == 'production';
@@ -34,7 +33,7 @@ app.use(
         cookie: {
             httpOnly: true,
             secure: inProd,
-            sameSite: 'lax'
+            sameSite: 'none'
         }
     })
 );
