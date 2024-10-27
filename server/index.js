@@ -22,6 +22,8 @@ app.use(cors({
     credentials: true
 }));
 
+const inProd = process.env.NODE_ENV == 'production';
+
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
@@ -29,7 +31,7 @@ app.use(
         saveUninitialized: false,
         cookie: {
             httpOnly: true,
-            secure: false,
+            secure: inProd,
             sameSite: 'lax'
         }
     })
