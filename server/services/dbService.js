@@ -11,7 +11,9 @@ async function initDb() {
             user: process.env.JAWS_USER,
             password: process.env.JAWS_PASS,
             database: process.env.JAWS_DB,
-            port: process.env.JAWS_PORT
+            port: process.env.JAWS_PORT,
+            enableKeepAlive: true,
+            keepAliveInitialDelay: 10000
         });
 
         console.log('Successfully connected to db');
